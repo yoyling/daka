@@ -170,7 +170,7 @@ function submit (cookie, body) {
     "method": "POST",
     "mode": "cors"
   }).then(res => {
-    res.text().then(text => console.log('\n提交结果>> ', text))
+    res.text().then(text => console.log('\n提交结果：', JSON.parse(text).errmsg))
   })
 }
 
@@ -187,7 +187,12 @@ async function main () {
     console.error('GitHub Secrets信息不完整，请按文档说明填写，程序中止');
     return
   }
-  let cookie = await login();
+  let r = 0;
+  let cookie = await login().catch(error => {console.error('登录失败：'+error.message);r = 1});
+  if(r === 1) {
+    main()
+    return
+  }
   let userInfo = await getUserInfo(cookie);
   if(!userInfo) {
     console.error('\n获取用户信息失败，程序中止');
